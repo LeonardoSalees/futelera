@@ -13,56 +13,69 @@ datasource db {
   provider = "postgresql"
 }
 
-
 // Jogador e suas estatísticas acumuladas
 model Player {
-  id              String   @id @default(cuid())
-  name            String
-  age             Int?
-  avatarURL       String?
-  rating          Int      @default(3) // 1 a 5
-  isActive        Boolean  @default(true)
-  
+  id        String  @id @default(cuid())
+  name      String
+  age       Int?
+  avatarURL String?
+  rating    Int     @default(3) // 1 a 5
+  isActive  Boolean @default(true)
+
   // Relações para as estatísticas
-  goals           Goal[]   @relation("PlayerGoals")
-  assists         Goal[]   @relation("PlayerAssists")
-  
-  createdAt       DateTime @default(now())
+  goals   Goal[] @relation("PlayerGoals")
+  assists Goal[] @relation("PlayerAssists")
+
+  createdAt DateTime @default(now())
+  team      Team[]
 }
 
 // Uma "Pelada" (A noite de quinta)
 model MatchDay {
-  id        String   @id @default(cuid())
-  date      DateTime @default(now())
-  matches   Match[]
+  id      String   @id @default(cuid())
+  date    DateTime @default(now())
+  matches Match[]
+  teams   Team[]
 }
 
 // Uma partida individual dentro da noite (Ex: Time A x Time B)
 model Match {
-  id           String    @id @default(cuid())
-  matchDayId   String
-  matchDay     MatchDay  @relation(fields: [matchDayId], references: [id])
-  
-  teamAName    String    @default("Time A")
-  teamBName    String    @default("Time B")
-  scoreA       Int       @default(0)
-  scoreB       Int       @default(0)
-  
-  goals        Goal[]
-  createdAt    DateTime  @default(now())
+  id         String   @id @default(cuid())
+  matchDayId String
+  matchDay   MatchDay @relation(fields: [matchDayId], references: [id])
+
+  // A "mágica" está aqui: Uma partida tem vários times (2 ou mais)
+  teams Team[]
+
+  // O placar pode ser registrado nos times ou aqui se for sempre 1vs1
+  scoreA Int    @default(0)
+  scoreB Int    @default(0)
+  status String @default("scheduled")
+
+  goals     Goal[]
+  createdAt DateTime @default(now())
+}
+
+model Team {
+  id         String   @id @default(cuid())
+  name       String
+  matchDayId String // Mude de matchId para matchDayId
+  matchDay   MatchDay @relation(fields: [matchDayId], references: [id])
+  matches    Match[] // Um time pode participar de várias partidas na noite
+  players    Player[]
 }
 
 // O registro do Gol (com a assistência vinculada)
 model Goal {
-  id           String   @id @default(cuid())
-  matchId      String
-  match        Match    @relation(fields: [matchId], references: [id])
-  
-  playerId     String
-  player       Player   @relation("PlayerGoals", fields: [playerId], references: [id])
-  
-  assistantId  String?  // Opcional para gols individuais
-  assistant    Player?  @relation("PlayerAssists", fields: [assistantId], references: [id])
-  
-  createdAt    DateTime @default(now())
+  id      String @id @default(cuid())
+  matchId String
+  match   Match  @relation(fields: [matchId], references: [id])
+
+  playerId String
+  player   Player @relation("PlayerGoals", fields: [playerId], references: [id])
+
+  assistantId String? // Opcional para gols individuais
+  assistant   Player? @relation("PlayerAssists", fields: [assistantId], references: [id])
+
+  createdAt DateTime @default(now())
 }

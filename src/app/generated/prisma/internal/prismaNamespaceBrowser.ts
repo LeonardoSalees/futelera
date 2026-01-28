@@ -54,6 +54,7 @@ export const ModelName = {
   Player: 'Player',
   MatchDay: 'MatchDay',
   Match: 'Match',
+  Team: 'Team',
   Goal: 'Goal'
 } as const
 
@@ -97,14 +98,22 @@ export type MatchDayScalarFieldEnum = (typeof MatchDayScalarFieldEnum)[keyof typ
 export const MatchScalarFieldEnum = {
   id: 'id',
   matchDayId: 'matchDayId',
-  teamAName: 'teamAName',
-  teamBName: 'teamBName',
   scoreA: 'scoreA',
   scoreB: 'scoreB',
+  status: 'status',
   createdAt: 'createdAt'
 } as const
 
 export type MatchScalarFieldEnum = (typeof MatchScalarFieldEnum)[keyof typeof MatchScalarFieldEnum]
+
+
+export const TeamScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  matchDayId: 'matchDayId'
+} as const
+
+export type TeamScalarFieldEnum = (typeof TeamScalarFieldEnum)[keyof typeof TeamScalarFieldEnum]
 
 
 export const GoalScalarFieldEnum = {

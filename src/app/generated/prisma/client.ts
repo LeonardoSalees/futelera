@@ -55,6 +55,11 @@ export type MatchDay = Prisma.MatchDayModel
  */
 export type Match = Prisma.MatchModel
 /**
+ * Model Team
+ * 
+ */
+export type Team = Prisma.TeamModel
+/**
  * Model Goal
  * 
  */

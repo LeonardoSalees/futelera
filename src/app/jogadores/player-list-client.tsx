@@ -57,10 +57,10 @@ export function PlayerListClient({ initialPlayers }: { initialPlayers: Player[] 
   const teamNames = Array.from({ length: numTeamsNeeded }, (_, i) => {
     if (i === 0 && customNameA) return customNameA;
     if (i === 1 && customNameB) return customNameB;
-    if (i === 1 && customNameC) return customNameC;
-    if (i === 1 && customNameD) return customNameD;
-    if (i === 1 && customNameE) return customNameE;
-    if (i === 1 && customNameF) return customNameF;
+    if (i === 2 && customNameC) return customNameC;
+    if (i === 3 && customNameD) return customNameD;
+    if (i === 4 && customNameE) return customNameE;
+    if (i === 5 && customNameF) return customNameF;
     return `Time ${String.fromCharCode(65 + i)}`; // Gera Time C, Time D, etc.
   });
 

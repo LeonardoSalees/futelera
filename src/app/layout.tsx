@@ -5,7 +5,7 @@ import './globals.css'
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="pt-br" className="h-full">
-      <body className="h-full bg-slate-50 text-slate-900 antialiased flex flex-col">
+      <body className="bg-[#020617] text-slate-200 antialiased selection:bg-blue-500/30 h-full flex flex-col">
         <Header />
         
         {/* Container que gerencia o scroll sem afetar o Header/Nav */}

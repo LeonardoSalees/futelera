@@ -3,7 +3,7 @@ import { Users, Trophy, SwatchBook, LayoutDashboard } from 'lucide-react';
 
 export function BottomNav() {
   return (
-    <nav className="fixed bottom-0 left-0 right-0 h-16 bg-white border-t border-slate-200 flex items-center justify-around pb-safe z-50">
+    <nav className="bg-[#020617] text-slate-200 antialiased selection:bg-blue-500/30 fixed bottom-0 left-0 right-0 h-16 border-t border-slate-200 flex items-center justify-around pb-safe z-50">
       <Link href="/" className="flex flex-col items-center gap-1 text-slate-500 hover:text-green-600">
         <LayoutDashboard size={20} />
         <span className="text-[10px] font-medium">Início</span>

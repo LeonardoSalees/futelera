@@ -11,10 +11,9 @@ export default function ResultadoPage() {
   const router = useRouter();
 
   const [isSaving, setIsSaving] = useState(false);
- console.log
+ console.log(teams)
   const handleConfirmarPartida = async () => {
     setIsSaving(true);
-    
     try {
       const response = await fetch("/api/matches/confirm", {
         method: "POST",

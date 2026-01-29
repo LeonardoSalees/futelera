@@ -17,6 +17,7 @@ export default async function ConfrontoPage({ params }: PageProps) {
   return (
     <main className="min-h-screen bg-slate-950 text-white p-4 flex flex-col items-center justify-center">
       <ScoreboardClient 
+      match={match}
         matchId={match.id}
         teamA={match.teams[0]}
         teamB={match.teams[1]}

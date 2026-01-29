@@ -2,57 +2,126 @@
 
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Timer, RotateCcw, Save, ArrowLeft, ChevronUp, User } from "lucide-react";
+import { RotateCcw, Save, ArrowLeft, User, Trophy, Star } from "lucide-react";
 import Link from "next/link";
 import { Card } from "@/components/ui/card";
-import { 
-  Dialog, 
-  DialogContent, 
-  DialogHeader, 
-  DialogTitle, 
-  DialogDescription 
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useRouter } from "next/navigation";
+import { cn } from "@/lib/utils";
 
-export function ScoreboardClient({ matchId, teamA, teamB, initialScore }: any) {
+export function ScoreboardClient({ match, matchId, teamA, teamB, initialScore }: any) {
   const [score, setScore] = useState(initialScore);
   const [seconds, setSeconds] = useState(0);
   const [isActive, setIsActive] = useState(false);
-  const [goalModal, setGoalModal] = useState<{ open: boolean; team: "A" | "B" | null }>({
-    open: false,
-    team: null,
-  });
+  const [lastGoalId, setLastGoalId] = useState<string | null>(null);
+  const [goalProcess, setGoalProcess] = useState<{
+    open: boolean; team: "A" | "B" | null; scorerId: string | null; step: "scorer" | "assistant";
+  }>({ open: false, team: null, scorerId: null, step: "scorer" });
+
   const router = useRouter();
-  const handleFinishMatch = async () => {
-    if (!confirm("Deseja realmente encerrar a partida? O placar será travado.")) return;
-    
-    const res = await fetch(`/api/matches/${matchId}/finish`, { method: "POST" });
-    if (res.ok) {
-      router.push(`/partida/${matchId}`); // Volta para a tela da pelada
-      router.refresh();
+
+  // 1. RECUPERAÇÃO DO CRONÔMETRO (VIVO)
+  useEffect(() => {
+    if (match.status === "playing" && match.startTime) {
+      const start = new Date(match.startTime).getTime();
+      const now = new Date().getTime();
+      const elapsedSinceStart = Math.floor((now - start) / 1000);
+      setSeconds((match.timerOffset || 0) + elapsedSinceStart);
+      setIsActive(true);
+    } else {
+      setSeconds(match.timerOffset || 0);
+      setIsActive(match.status === "playing");
     }
-  };
+  }, [match]);
 
-  // DEBUG: Se os nomes não aparecerem, veja o que está vindo aqui
-  console.log("Time A:", teamA);
-  console.log("Time B:", teamB);
-
-  // Garante que os jogadores existam antes de renderizar a lista
-  const currentTeamPlayers = goalModal.team === "A" 
-    ? (teamA?.players || []) 
-    : (teamB?.players || []);
-
-  // Cronômetro
+  // 2. TICK DO INTERVALO LOCAL
   useEffect(() => {
     let interval: any = null;
     if (isActive) {
       interval = setInterval(() => setSeconds((s) => s + 1), 1000);
-    } else {
-      clearInterval(interval);
     }
     return () => clearInterval(interval);
   }, [isActive]);
+
+  // 3. PLAY / PAUSE UNIFICADO (CHAMA A ROTA /TIMER)
+  const toggleTimer = async () => {
+    const newActiveState = !isActive;
+    const newStatus = newActiveState ? "playing" : "paused";
+
+    setIsActive(newActiveState);
+
+    try {
+      await fetch(`/api/matches/${matchId}/timer`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          status: newStatus,
+          timerOffset: seconds, 
+        }),
+      });
+    } catch (e) {
+      console.error("Erro ao sincronizar timer:", e);
+    }
+  };
+
+  // 4. FINALIZAR PARTIDA (TRAVA O PLACAR)
+  const handleFinishMatch = async () => {
+    if (!confirm("Deseja encerrar a partida? Isso enviará os dados para o ranking e não poderá ser desfeito.")) return;
+
+    try {
+      const res = await fetch(`/api/matches/${matchId}/timer`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          status: "finished",
+          timerOffset: seconds,
+        }),
+      });
+
+      if (res.ok) {
+        alert("Partida finalizada com sucesso!");
+        router.push("/");
+        router.refresh();
+      }
+    } catch (e) {
+      console.error("Erro ao finalizar:", e);
+    }
+  };
+
+  const handleFinalizeGoal = async (assistantId: string | null) => {
+    const { team, scorerId } = goalProcess;
+    if (!team || !scorerId) return;
+
+    setScore((prev: any) => ({
+      ...prev,
+      [team.toLowerCase()]: prev[team.toLowerCase()] + 1,
+    }));
+    setGoalProcess({ open: false, team: null, scorerId: null, step: "scorer" });
+
+    try {
+      const res = await fetch(`/api/matches/${matchId}/goals`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ playerId: scorerId, assistantId }),
+      });
+      const goalData = await res.json();
+      setLastGoalId(goalData.id);
+    } catch (e) { console.error(e); }
+  };
+
+  const handleUndoLastGoal = async () => {
+    if (!lastGoalId || !confirm("Anular último gol?")) return;
+    try {
+      const res = await fetch(`/api/matches/${matchId}/goals/${lastGoalId}`, { method: "DELETE" });
+      if (res.ok) {
+        const data = await res.json();
+        setScore((prev: any) => ({
+          ...prev, [data.teamSide.toLowerCase()]: Math.max(0, prev[data.teamSide.toLowerCase()] - 1)
+        }));
+        setLastGoalId(null);
+      }
+    } catch (e) { console.error(e); }
+  };
 
   const formatTime = (s: number) => {
     const min = Math.floor(s / 60);
@@ -60,150 +129,107 @@ export function ScoreboardClient({ matchId, teamA, teamB, initialScore }: any) {
     return `${min.toString().padStart(2, "0")}:${sec.toString().padStart(2, "0")}`;
   };
 
-  // Abrir seleção de artilheiro
-  const openGoalSelection = (team: "A" | "B") => {
-    if (!isActive) {
-      alert("Inicie o cronômetro para registrar ações!");
-      return;
-    }
-    setGoalModal({ open: true, team });
-  };
-
-  // Registrar o Gol Oficial
-  const handleRegisterGoal = async (playerId: string) => {
-    const team = goalModal.team;
-    if (!team) return;
-
-    // Optimistic UI
-    const newScore = { ...score };
-    if (team === "A") newScore.a += 1;
-    else newScore.b += 1;
-    setScore(newScore);
-    setGoalModal({ open: false, team: null });
-
-    try {
-      // Chama a nova lógica de RegisterGoal que criamos no Service
-      await fetch(`/api/matches/${matchId}/goals`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ playerId }),
-      });
-    } catch (e) {
-      console.error("Erro ao salvar gol");
-    }
-  };
-
+  const currentPlayers = goalProcess.team === "A" ? teamA?.players : teamB?.players;
 
   return (
-    <div className="w-full max-w-4xl mx-auto space-y-6 p-4">
+    <div className="min-h-screen bg-[#020617] text-slate-200 p-2 md:p-4 pb-10 flex flex-col gap-4">
       {/* Header */}
-      <div className="flex justify-between items-center">
-        <Link href="/" className="flex items-center gap-2 text-slate-500 hover:text-white transition-colors text-xs font-bold uppercase">
-          <ArrowLeft className="h-4 w-4" /> Encerrar Painel
+      <div className="flex justify-between items-center max-w-4xl mx-auto w-full px-2">
+        <Link href="/" className="text-slate-500 text-[9px] font-black uppercase flex items-center gap-1">
+          <ArrowLeft className="h-3 w-3" /> Sair
         </Link>
-        <div className="flex items-center gap-2">
-          <div className={`h-2 w-2 rounded-full ${isActive ? 'bg-green-500 animate-pulse' : 'bg-slate-600'}`} />
-          <span className="text-[10px] font-black text-slate-400 tracking-widest uppercase">
-            {isActive ? "Partida em Andamento" : "Partida Pausada"}
-          </span>
+        <div className="flex items-center gap-2 bg-slate-900/50 px-2 py-1 rounded-full border border-slate-800">
+          <div className={cn("h-1.5 w-1.5 rounded-full", isActive ? "bg-green-500 animate-pulse shadow-[0_0_8px_#22c55e]" : "bg-slate-600")} />
+          <span className="text-[8px] font-black uppercase">{isActive ? "Live" : "Pausado"}</span>
         </div>
       </div>
 
-      {/* Placar Principal */}
-      <Card className="bg-slate-950 border-slate-800 shadow-2xl rounded-[3rem] overflow-hidden">
-        <div className="p-8 space-y-10">
-          
-          {/* Timer Section */}
-          <div className="text-center space-y-4">
-            <div className={`text-8xl font-black font-mono tracking-tighter ${isActive ? 'text-white' : 'text-slate-700'}`}>
+      <Card className="max-w-4xl mx-auto w-full bg-slate-900/40 border-slate-800 rounded-[2rem] overflow-hidden backdrop-blur-md">
+        <div className="p-4 md:p-8 space-y-6">
+          {/* Cronômetro */}
+          <div className="flex flex-col items-center gap-2">
+            <div className={cn("text-6xl md:text-8xl font-black font-mono tracking-tighter transition-all", isActive ? "text-white" : "text-slate-700")}>
               {formatTime(seconds)}
             </div>
-            <div className="flex justify-center gap-3">
+            <div className="flex items-center gap-2">
               <Button 
-                onClick={() => setIsActive(!isActive)} 
-                variant={isActive ? "destructive" : "default"}
-                className="rounded-full px-10 h-12 font-black uppercase tracking-widest transition-all"
+                onClick={toggleTimer} 
+                className={cn("h-10 px-6 rounded-xl font-black uppercase text-xs", isActive ? "bg-rose-600" : "bg-blue-600")}
               >
-                {isActive ? "Pausar Jogo" : "Começar Jogo"}
+                {isActive ? "Pausar" : "Iniciar"}
               </Button>
-              <Button onClick={() => setSeconds(0)} variant="outline" className="rounded-full h-12 w-12 border-slate-800 bg-slate-900">
-                <RotateCcw className="h-5 w-5 text-slate-400" />
+              <Button onClick={() => confirm("Zerar tempo?") && setSeconds(0)} variant="outline" className="h-10 w-10 rounded-xl border-slate-800 bg-slate-950/50">
+                <RotateCcw className="h-4 w-4 text-slate-500" />
               </Button>
             </div>
+            {lastGoalId && (
+              <button onClick={handleUndoLastGoal} className="text-[8px] font-black text-rose-500/60 uppercase tracking-widest mt-1">
+                Desfazer último gol
+              </button>
+            )}
           </div>
 
-          {/* Confronto Visual */}
-          <div className="flex items-center justify-between gap-4">
-            {/* Time A */}
-            <div className="flex-1 flex flex-col items-center space-y-6">
-              <h2 className="text-2xl font-black text-blue-500 italic uppercase tracking-tighter">{teamA?.name}</h2>
-              <div className="text-9xl font-black text-white leading-none tracking-tighter">{score.a}</div>
-              <Button 
-                disabled={!isActive}
-                onClick={() => openGoalSelection("A")}
-                className="w-full h-20 bg-blue-600 hover:bg-blue-500 rounded-2xl shadow-lg shadow-blue-900/40 text-2xl font-black"
-              >
-                GOL +
-              </Button>
-            </div>
-
-            <div className="flex flex-col items-center text-slate-800 font-black italic text-2xl">VS</div>
-
-            {/* Time B */}
-            <div className="flex-1 flex flex-col items-center space-y-6">
-              <h2 className="text-2xl font-black text-amber-500 italic uppercase tracking-tighter">{teamB?.name}</h2>
-              <div className="text-9xl font-black text-white leading-none tracking-tighter">{score.b}</div>
-              <Button 
-                disabled={!isActive}
-                onClick={() => openGoalSelection("B")}
-                className="w-full h-20 bg-amber-600 hover:bg-amber-500 rounded-2xl shadow-lg shadow-amber-900/40 text-2xl font-black"
-              >
-                GOL +
-              </Button>
-            </div>
+          {/* Placar */}
+          <div className="flex flex-row items-center justify-between gap-2 relative border-t border-slate-800/50 pt-6">
+            <TeamZone 
+              name={teamA?.name} score={score.a} color="text-blue-500" btnColor="bg-blue-600" 
+              disabled={!isActive} onGoal={() => setGoalProcess({ open: true, team: "A", scorerId: null, step: "scorer" })}
+            />
+            <div className="text-slate-800 font-black italic text-xl px-2 text-center">VS</div>
+            <TeamZone 
+              name={teamB?.name} score={score.b} color="text-amber-500" btnColor="bg-amber-600" 
+              disabled={!isActive} onGoal={() => setGoalProcess({ open: true, team: "B", scorerId: null, step: "scorer" })}
+            />
           </div>
         </div>
 
-        {/* Barra de Status Inferior */}
-        <div className="bg-slate-900/50 p-4 border-t border-slate-800 flex justify-center">
-            <Button 
-        onClick={handleFinishMatch}
-        variant="ghost" 
-        className="text-slate-500 hover:text-red-400 font-black uppercase tracking-[0.2em] gap-2"
-      >
-        <Save className="h-4 w-4" /> Encerrar Súmula e Salvar
-      </Button>
+        <div className="bg-black/40 p-3 flex justify-center border-t border-slate-800/50">
+          <Button onClick={handleFinishMatch} variant="ghost" className="text-slate-500 text-[9px] font-black uppercase tracking-[0.2em] gap-2">
+            <Trophy className="h-3 w-3" /> Encerrar Súmula
+          </Button>
         </div>
       </Card>
 
-      {/* Modal de Seleção de Artilheiro */}
-      <Dialog open={goalModal.open} onOpenChange={(open: any) => !open && setGoalModal({ open, team: null })}>
-        <DialogContent className="bg-slate-900 border-slate-800 text-white max-w-sm rounded-3xl">
+      {/* Modais de Gol */}
+      <Dialog open={goalProcess.open} onOpenChange={(o) => !o && setGoalProcess(p => ({ ...p, open: o }))}>
+        <DialogContent className="bg-[#020617] border-slate-800 text-white max-w-[90vw] rounded-[2rem] p-6">
           <DialogHeader>
-            <DialogTitle className="text-center text-2xl font-black italic uppercase tracking-tighter">
-              Quem marcou o gol?
+            <DialogTitle className="text-center text-xl font-black uppercase italic">
+              {goalProcess.step === "scorer" ? "Quem marcou?" : "Assistência?"}
             </DialogTitle>
-            <DialogDescription className="text-center text-slate-400 text-xs">
-              Selecione o craque do Time {goalModal.team}
-            </DialogDescription>
           </DialogHeader>
-          <div className="grid gap-2 py-4">
-            {currentTeamPlayers?.map((player: any) => (
+          <div className="grid gap-2 py-4 max-h-[50vh] overflow-y-auto px-1">
+            {currentPlayers?.map((player: any) => (
               <Button
                 key={player.id}
-                onClick={() => handleRegisterGoal(player.id)}
-                variant="outline"
-                className="h-14 justify-start gap-4 border-slate-800 bg-slate-950 hover:bg-blue-600 hover:text-white transition-all rounded-xl"
+                disabled={goalProcess.step === "assistant" && player.id === goalProcess.scorerId}
+                onClick={() => goalProcess.step === "scorer" 
+                  ? setGoalProcess(p => ({ ...p, scorerId: player.id, step: "assistant" })) 
+                  : handleFinalizeGoal(player.id)}
+                variant="outline" className="h-12 justify-start px-4 border-slate-800 bg-slate-900 rounded-xl"
               >
-                <div className="h-8 w-8 rounded-full bg-slate-800 flex items-center justify-center">
-                  <User className="h-4 w-4" />
-                </div>
-                <span className="font-bold uppercase tracking-tight">{player.name}</span>
+                <User className="h-4 w-4 mr-3 opacity-50" />
+                <span className="font-bold text-sm truncate">{player.name}</span>
               </Button>
             ))}
+            {goalProcess.step === "assistant" && (
+              <Button onClick={() => handleFinalizeGoal(null)} variant="ghost" className="h-12 text-slate-500 text-xs font-bold uppercase">Sem assistência</Button>
+            )}
           </div>
         </DialogContent>
       </Dialog>
+    </div>
+  );
+}
+
+function TeamZone({ name, score, color, btnColor, onGoal, disabled }: any) {
+  return (
+    <div className="flex-1 flex flex-col items-center gap-3 overflow-hidden">
+      <h2 className={cn("text-[10px] md:text-xs font-black italic uppercase truncate w-full text-center", color)}>{name}</h2>
+      <div className="text-6xl md:text-9xl font-black text-white leading-none tracking-tighter">{score}</div>
+      <Button disabled={disabled} onClick={onGoal} className={cn("w-full h-14 rounded-2xl text-xl font-black italic", btnColor)}>
+        GOL
+      </Button>
     </div>
   );
 }

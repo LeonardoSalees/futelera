@@ -29,11 +29,13 @@ export type AggregateMatch = {
 export type MatchAvgAggregateOutputType = {
   scoreA: number | null
   scoreB: number | null
+  timerOffset: number | null
 }
 
 export type MatchSumAggregateOutputType = {
   scoreA: number | null
   scoreB: number | null
+  timerOffset: number | null
 }
 
 export type MatchMinAggregateOutputType = {
@@ -41,6 +43,8 @@ export type MatchMinAggregateOutputType = {
   matchDayId: string | null
   scoreA: number | null
   scoreB: number | null
+  startTime: Date | null
+  timerOffset: number | null
   status: string | null
   createdAt: Date | null
 }
@@ -50,6 +54,8 @@ export type MatchMaxAggregateOutputType = {
   matchDayId: string | null
   scoreA: number | null
   scoreB: number | null
+  startTime: Date | null
+  timerOffset: number | null
   status: string | null
   createdAt: Date | null
 }
@@ -59,6 +65,8 @@ export type MatchCountAggregateOutputType = {
   matchDayId: number
   scoreA: number
   scoreB: number
+  startTime: number
+  timerOffset: number
   status: number
   createdAt: number
   _all: number
@@ -68,11 +76,13 @@ export type MatchCountAggregateOutputType = {
 export type MatchAvgAggregateInputType = {
   scoreA?: true
   scoreB?: true
+  timerOffset?: true
 }
 
 export type MatchSumAggregateInputType = {
   scoreA?: true
   scoreB?: true
+  timerOffset?: true
 }
 
 export type MatchMinAggregateInputType = {
@@ -80,6 +90,8 @@ export type MatchMinAggregateInputType = {
   matchDayId?: true
   scoreA?: true
   scoreB?: true
+  startTime?: true
+  timerOffset?: true
   status?: true
   createdAt?: true
 }
@@ -89,6 +101,8 @@ export type MatchMaxAggregateInputType = {
   matchDayId?: true
   scoreA?: true
   scoreB?: true
+  startTime?: true
+  timerOffset?: true
   status?: true
   createdAt?: true
 }
@@ -98,6 +112,8 @@ export type MatchCountAggregateInputType = {
   matchDayId?: true
   scoreA?: true
   scoreB?: true
+  startTime?: true
+  timerOffset?: true
   status?: true
   createdAt?: true
   _all?: true
@@ -194,6 +210,8 @@ export type MatchGroupByOutputType = {
   matchDayId: string
   scoreA: number
   scoreB: number
+  startTime: Date | null
+  timerOffset: number
   status: string
   createdAt: Date
   _count: MatchCountAggregateOutputType | null
@@ -226,6 +244,8 @@ export type MatchWhereInput = {
   matchDayId?: Prisma.StringFilter<"Match"> | string
   scoreA?: Prisma.IntFilter<"Match"> | number
   scoreB?: Prisma.IntFilter<"Match"> | number
+  startTime?: Prisma.DateTimeNullableFilter<"Match"> | Date | string | null
+  timerOffset?: Prisma.IntFilter<"Match"> | number
   status?: Prisma.StringFilter<"Match"> | string
   createdAt?: Prisma.DateTimeFilter<"Match"> | Date | string
   matchDay?: Prisma.XOR<Prisma.MatchDayScalarRelationFilter, Prisma.MatchDayWhereInput>
@@ -238,6 +258,8 @@ export type MatchOrderByWithRelationInput = {
   matchDayId?: Prisma.SortOrder
   scoreA?: Prisma.SortOrder
   scoreB?: Prisma.SortOrder
+  startTime?: Prisma.SortOrderInput | Prisma.SortOrder
+  timerOffset?: Prisma.SortOrder
   status?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   matchDay?: Prisma.MatchDayOrderByWithRelationInput
@@ -253,6 +275,8 @@ export type MatchWhereUniqueInput = Prisma.AtLeast<{
   matchDayId?: Prisma.StringFilter<"Match"> | string
   scoreA?: Prisma.IntFilter<"Match"> | number
   scoreB?: Prisma.IntFilter<"Match"> | number
+  startTime?: Prisma.DateTimeNullableFilter<"Match"> | Date | string | null
+  timerOffset?: Prisma.IntFilter<"Match"> | number
   status?: Prisma.StringFilter<"Match"> | string
   createdAt?: Prisma.DateTimeFilter<"Match"> | Date | string
   matchDay?: Prisma.XOR<Prisma.MatchDayScalarRelationFilter, Prisma.MatchDayWhereInput>
@@ -265,6 +289,8 @@ export type MatchOrderByWithAggregationInput = {
   matchDayId?: Prisma.SortOrder
   scoreA?: Prisma.SortOrder
   scoreB?: Prisma.SortOrder
+  startTime?: Prisma.SortOrderInput | Prisma.SortOrder
+  timerOffset?: Prisma.SortOrder
   status?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   _count?: Prisma.MatchCountOrderByAggregateInput
@@ -282,6 +308,8 @@ export type MatchScalarWhereWithAggregatesInput = {
   matchDayId?: Prisma.StringWithAggregatesFilter<"Match"> | string
   scoreA?: Prisma.IntWithAggregatesFilter<"Match"> | number
   scoreB?: Prisma.IntWithAggregatesFilter<"Match"> | number
+  startTime?: Prisma.DateTimeNullableWithAggregatesFilter<"Match"> | Date | string | null
+  timerOffset?: Prisma.IntWithAggregatesFilter<"Match"> | number
   status?: Prisma.StringWithAggregatesFilter<"Match"> | string
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Match"> | Date | string
 }
@@ -290,6 +318,8 @@ export type MatchCreateInput = {
   id?: string
   scoreA?: number
   scoreB?: number
+  startTime?: Date | string | null
+  timerOffset?: number
   status?: string
   createdAt?: Date | string
   matchDay: Prisma.MatchDayCreateNestedOneWithoutMatchesInput
@@ -302,6 +332,8 @@ export type MatchUncheckedCreateInput = {
   matchDayId: string
   scoreA?: number
   scoreB?: number
+  startTime?: Date | string | null
+  timerOffset?: number
   status?: string
   createdAt?: Date | string
   teams?: Prisma.TeamUncheckedCreateNestedManyWithoutMatchesInput
@@ -312,6 +344,8 @@ export type MatchUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   scoreA?: Prisma.IntFieldUpdateOperationsInput | number
   scoreB?: Prisma.IntFieldUpdateOperationsInput | number
+  startTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  timerOffset?: Prisma.IntFieldUpdateOperationsInput | number
   status?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   matchDay?: Prisma.MatchDayUpdateOneRequiredWithoutMatchesNestedInput
@@ -324,6 +358,8 @@ export type MatchUncheckedUpdateInput = {
   matchDayId?: Prisma.StringFieldUpdateOperationsInput | string
   scoreA?: Prisma.IntFieldUpdateOperationsInput | number
   scoreB?: Prisma.IntFieldUpdateOperationsInput | number
+  startTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  timerOffset?: Prisma.IntFieldUpdateOperationsInput | number
   status?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   teams?: Prisma.TeamUncheckedUpdateManyWithoutMatchesNestedInput
@@ -335,6 +371,8 @@ export type MatchCreateManyInput = {
   matchDayId: string
   scoreA?: number
   scoreB?: number
+  startTime?: Date | string | null
+  timerOffset?: number
   status?: string
   createdAt?: Date | string
 }
@@ -343,6 +381,8 @@ export type MatchUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   scoreA?: Prisma.IntFieldUpdateOperationsInput | number
   scoreB?: Prisma.IntFieldUpdateOperationsInput | number
+  startTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  timerOffset?: Prisma.IntFieldUpdateOperationsInput | number
   status?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -352,6 +392,8 @@ export type MatchUncheckedUpdateManyInput = {
   matchDayId?: Prisma.StringFieldUpdateOperationsInput | string
   scoreA?: Prisma.IntFieldUpdateOperationsInput | number
   scoreB?: Prisma.IntFieldUpdateOperationsInput | number
+  startTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  timerOffset?: Prisma.IntFieldUpdateOperationsInput | number
   status?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -371,6 +413,8 @@ export type MatchCountOrderByAggregateInput = {
   matchDayId?: Prisma.SortOrder
   scoreA?: Prisma.SortOrder
   scoreB?: Prisma.SortOrder
+  startTime?: Prisma.SortOrder
+  timerOffset?: Prisma.SortOrder
   status?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
@@ -378,6 +422,7 @@ export type MatchCountOrderByAggregateInput = {
 export type MatchAvgOrderByAggregateInput = {
   scoreA?: Prisma.SortOrder
   scoreB?: Prisma.SortOrder
+  timerOffset?: Prisma.SortOrder
 }
 
 export type MatchMaxOrderByAggregateInput = {
@@ -385,6 +430,8 @@ export type MatchMaxOrderByAggregateInput = {
   matchDayId?: Prisma.SortOrder
   scoreA?: Prisma.SortOrder
   scoreB?: Prisma.SortOrder
+  startTime?: Prisma.SortOrder
+  timerOffset?: Prisma.SortOrder
   status?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
@@ -394,6 +441,8 @@ export type MatchMinOrderByAggregateInput = {
   matchDayId?: Prisma.SortOrder
   scoreA?: Prisma.SortOrder
   scoreB?: Prisma.SortOrder
+  startTime?: Prisma.SortOrder
+  timerOffset?: Prisma.SortOrder
   status?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
@@ -401,6 +450,7 @@ export type MatchMinOrderByAggregateInput = {
 export type MatchSumOrderByAggregateInput = {
   scoreA?: Prisma.SortOrder
   scoreB?: Prisma.SortOrder
+  timerOffset?: Prisma.SortOrder
 }
 
 export type MatchScalarRelationFilter = {
@@ -448,6 +498,10 @@ export type MatchUncheckedUpdateManyWithoutMatchDayNestedInput = {
   update?: Prisma.MatchUpdateWithWhereUniqueWithoutMatchDayInput | Prisma.MatchUpdateWithWhereUniqueWithoutMatchDayInput[]
   updateMany?: Prisma.MatchUpdateManyWithWhereWithoutMatchDayInput | Prisma.MatchUpdateManyWithWhereWithoutMatchDayInput[]
   deleteMany?: Prisma.MatchScalarWhereInput | Prisma.MatchScalarWhereInput[]
+}
+
+export type NullableDateTimeFieldUpdateOperationsInput = {
+  set?: Date | string | null
 }
 
 export type MatchCreateNestedManyWithoutTeamsInput = {
@@ -506,6 +560,8 @@ export type MatchCreateWithoutMatchDayInput = {
   id?: string
   scoreA?: number
   scoreB?: number
+  startTime?: Date | string | null
+  timerOffset?: number
   status?: string
   createdAt?: Date | string
   teams?: Prisma.TeamCreateNestedManyWithoutMatchesInput
@@ -516,6 +572,8 @@ export type MatchUncheckedCreateWithoutMatchDayInput = {
   id?: string
   scoreA?: number
   scoreB?: number
+  startTime?: Date | string | null
+  timerOffset?: number
   status?: string
   createdAt?: Date | string
   teams?: Prisma.TeamUncheckedCreateNestedManyWithoutMatchesInput
@@ -556,6 +614,8 @@ export type MatchScalarWhereInput = {
   matchDayId?: Prisma.StringFilter<"Match"> | string
   scoreA?: Prisma.IntFilter<"Match"> | number
   scoreB?: Prisma.IntFilter<"Match"> | number
+  startTime?: Prisma.DateTimeNullableFilter<"Match"> | Date | string | null
+  timerOffset?: Prisma.IntFilter<"Match"> | number
   status?: Prisma.StringFilter<"Match"> | string
   createdAt?: Prisma.DateTimeFilter<"Match"> | Date | string
 }
@@ -564,6 +624,8 @@ export type MatchCreateWithoutTeamsInput = {
   id?: string
   scoreA?: number
   scoreB?: number
+  startTime?: Date | string | null
+  timerOffset?: number
   status?: string
   createdAt?: Date | string
   matchDay: Prisma.MatchDayCreateNestedOneWithoutMatchesInput
@@ -575,6 +637,8 @@ export type MatchUncheckedCreateWithoutTeamsInput = {
   matchDayId: string
   scoreA?: number
   scoreB?: number
+  startTime?: Date | string | null
+  timerOffset?: number
   status?: string
   createdAt?: Date | string
   goals?: Prisma.GoalUncheckedCreateNestedManyWithoutMatchInput
@@ -605,6 +669,8 @@ export type MatchCreateWithoutGoalsInput = {
   id?: string
   scoreA?: number
   scoreB?: number
+  startTime?: Date | string | null
+  timerOffset?: number
   status?: string
   createdAt?: Date | string
   matchDay: Prisma.MatchDayCreateNestedOneWithoutMatchesInput
@@ -616,6 +682,8 @@ export type MatchUncheckedCreateWithoutGoalsInput = {
   matchDayId: string
   scoreA?: number
   scoreB?: number
+  startTime?: Date | string | null
+  timerOffset?: number
   status?: string
   createdAt?: Date | string
   teams?: Prisma.TeamUncheckedCreateNestedManyWithoutMatchesInput
@@ -641,6 +709,8 @@ export type MatchUpdateWithoutGoalsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   scoreA?: Prisma.IntFieldUpdateOperationsInput | number
   scoreB?: Prisma.IntFieldUpdateOperationsInput | number
+  startTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  timerOffset?: Prisma.IntFieldUpdateOperationsInput | number
   status?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   matchDay?: Prisma.MatchDayUpdateOneRequiredWithoutMatchesNestedInput
@@ -652,6 +722,8 @@ export type MatchUncheckedUpdateWithoutGoalsInput = {
   matchDayId?: Prisma.StringFieldUpdateOperationsInput | string
   scoreA?: Prisma.IntFieldUpdateOperationsInput | number
   scoreB?: Prisma.IntFieldUpdateOperationsInput | number
+  startTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  timerOffset?: Prisma.IntFieldUpdateOperationsInput | number
   status?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   teams?: Prisma.TeamUncheckedUpdateManyWithoutMatchesNestedInput
@@ -661,6 +733,8 @@ export type MatchCreateManyMatchDayInput = {
   id?: string
   scoreA?: number
   scoreB?: number
+  startTime?: Date | string | null
+  timerOffset?: number
   status?: string
   createdAt?: Date | string
 }
@@ -669,6 +743,8 @@ export type MatchUpdateWithoutMatchDayInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   scoreA?: Prisma.IntFieldUpdateOperationsInput | number
   scoreB?: Prisma.IntFieldUpdateOperationsInput | number
+  startTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  timerOffset?: Prisma.IntFieldUpdateOperationsInput | number
   status?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   teams?: Prisma.TeamUpdateManyWithoutMatchesNestedInput
@@ -679,6 +755,8 @@ export type MatchUncheckedUpdateWithoutMatchDayInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   scoreA?: Prisma.IntFieldUpdateOperationsInput | number
   scoreB?: Prisma.IntFieldUpdateOperationsInput | number
+  startTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  timerOffset?: Prisma.IntFieldUpdateOperationsInput | number
   status?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   teams?: Prisma.TeamUncheckedUpdateManyWithoutMatchesNestedInput
@@ -689,6 +767,8 @@ export type MatchUncheckedUpdateManyWithoutMatchDayInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   scoreA?: Prisma.IntFieldUpdateOperationsInput | number
   scoreB?: Prisma.IntFieldUpdateOperationsInput | number
+  startTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  timerOffset?: Prisma.IntFieldUpdateOperationsInput | number
   status?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -697,6 +777,8 @@ export type MatchUpdateWithoutTeamsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   scoreA?: Prisma.IntFieldUpdateOperationsInput | number
   scoreB?: Prisma.IntFieldUpdateOperationsInput | number
+  startTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  timerOffset?: Prisma.IntFieldUpdateOperationsInput | number
   status?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   matchDay?: Prisma.MatchDayUpdateOneRequiredWithoutMatchesNestedInput
@@ -708,6 +790,8 @@ export type MatchUncheckedUpdateWithoutTeamsInput = {
   matchDayId?: Prisma.StringFieldUpdateOperationsInput | string
   scoreA?: Prisma.IntFieldUpdateOperationsInput | number
   scoreB?: Prisma.IntFieldUpdateOperationsInput | number
+  startTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  timerOffset?: Prisma.IntFieldUpdateOperationsInput | number
   status?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   goals?: Prisma.GoalUncheckedUpdateManyWithoutMatchNestedInput
@@ -718,6 +802,8 @@ export type MatchUncheckedUpdateManyWithoutTeamsInput = {
   matchDayId?: Prisma.StringFieldUpdateOperationsInput | string
   scoreA?: Prisma.IntFieldUpdateOperationsInput | number
   scoreB?: Prisma.IntFieldUpdateOperationsInput | number
+  startTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  timerOffset?: Prisma.IntFieldUpdateOperationsInput | number
   status?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -767,6 +853,8 @@ export type MatchSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   matchDayId?: boolean
   scoreA?: boolean
   scoreB?: boolean
+  startTime?: boolean
+  timerOffset?: boolean
   status?: boolean
   createdAt?: boolean
   matchDay?: boolean | Prisma.MatchDayDefaultArgs<ExtArgs>
@@ -780,6 +868,8 @@ export type MatchSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensi
   matchDayId?: boolean
   scoreA?: boolean
   scoreB?: boolean
+  startTime?: boolean
+  timerOffset?: boolean
   status?: boolean
   createdAt?: boolean
   matchDay?: boolean | Prisma.MatchDayDefaultArgs<ExtArgs>
@@ -790,6 +880,8 @@ export type MatchSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensi
   matchDayId?: boolean
   scoreA?: boolean
   scoreB?: boolean
+  startTime?: boolean
+  timerOffset?: boolean
   status?: boolean
   createdAt?: boolean
   matchDay?: boolean | Prisma.MatchDayDefaultArgs<ExtArgs>
@@ -800,11 +892,13 @@ export type MatchSelectScalar = {
   matchDayId?: boolean
   scoreA?: boolean
   scoreB?: boolean
+  startTime?: boolean
+  timerOffset?: boolean
   status?: boolean
   createdAt?: boolean
 }
 
-export type MatchOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "matchDayId" | "scoreA" | "scoreB" | "status" | "createdAt", ExtArgs["result"]["match"]>
+export type MatchOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "matchDayId" | "scoreA" | "scoreB" | "startTime" | "timerOffset" | "status" | "createdAt", ExtArgs["result"]["match"]>
 export type MatchInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   matchDay?: boolean | Prisma.MatchDayDefaultArgs<ExtArgs>
   teams?: boolean | Prisma.Match$teamsArgs<ExtArgs>
@@ -830,6 +924,8 @@ export type $MatchPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs 
     matchDayId: string
     scoreA: number
     scoreB: number
+    startTime: Date | null
+    timerOffset: number
     status: string
     createdAt: Date
   }, ExtArgs["result"]["match"]>
@@ -1262,6 +1358,8 @@ export interface MatchFieldRefs {
   readonly matchDayId: Prisma.FieldRef<"Match", 'String'>
   readonly scoreA: Prisma.FieldRef<"Match", 'Int'>
   readonly scoreB: Prisma.FieldRef<"Match", 'Int'>
+  readonly startTime: Prisma.FieldRef<"Match", 'DateTime'>
+  readonly timerOffset: Prisma.FieldRef<"Match", 'Int'>
   readonly status: Prisma.FieldRef<"Match", 'String'>
   readonly createdAt: Prisma.FieldRef<"Match", 'DateTime'>
 }

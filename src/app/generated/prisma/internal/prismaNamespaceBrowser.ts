@@ -100,6 +100,8 @@ export const MatchScalarFieldEnum = {
   matchDayId: 'matchDayId',
   scoreA: 'scoreA',
   scoreB: 'scoreB',
+  startTime: 'startTime',
+  timerOffset: 'timerOffset',
   status: 'status',
   createdAt: 'createdAt'
 } as const

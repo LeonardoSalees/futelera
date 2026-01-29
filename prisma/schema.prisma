@@ -50,6 +50,9 @@ model Match {
   // O placar pode ser registrado nos times ou aqui se for sempre 1vs1
   scoreA Int    @default(0)
   scoreB Int    @default(0)
+
+  startTime   DateTime? // Quando o cronómetro começou a rodar
+  timerOffset Int       @default(0) // Segundos acumulados antes do último "pause"
   status String @default("scheduled")
 
   goals     Goal[]

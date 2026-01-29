@@ -10,27 +10,101 @@ export class MatchService {
    * Busca detalhes do sorteio inicial
    */
   static async getMatchById(id: string) {
-  if (!id) return null;
-  return await prisma.match.findUnique({
-    where: { id },
-    include: {
-      matchDay: {
-        include: {
-          matches: {
-            include: {
-              teams: {
-                include: { players: true }
-              }
-            }
+    if (!id) return null;
+    return await prisma.match.findUnique({
+      where: { id },
+      include: {
+        matchDay: {
+          include: {
+            matches: {
+              include: {
+                teams: {
+                  include: { players: true },
+                },
+              },
+            },
+          },
+        },
+        teams: {
+          include:{
+            players: true
           }
         }
       },
-      teams: {
-        include: { players: true }
+    });
+  }
+
+  // Busca a Noite (Rodada) completa com contagem real de times
+  static async getFullMatchDay(id: string) {
+    return await prisma.matchDay.findUnique({
+      where: { id },
+      include: {
+        _count: {
+          select: { teams: true } // Contagem real de times sorteados
+        },
+        teams: {
+          include: { players: true }
+        },
+        matches: {
+          orderBy: { createdAt: 'desc' },
+          include: { teams: true }
+        }
       }
-    },
-  });
-}
+    });
+  }
+
+  static async getCurrentMatchDay() {
+    return await prisma.matchDay.findFirst({
+      orderBy: { date: 'desc' },
+      include: {
+        matches: {
+          orderBy: { createdAt: 'desc' },
+          take: 1,
+          include: {
+            teams: true
+          }
+        },
+        _count:{
+          select:{
+            teams: true
+          }
+        }
+      }
+    });
+  }
+
+  static async confirmMatchDay(teams: any[]) {
+    return await prisma.$transaction(async (tx) => {
+      // 1. Cria o MatchDay (A Noite)
+      const matchDay = await tx.matchDay.create({
+        data: { date: new Date() }
+      });
+
+      // 2. Cria os Times e o primeiro Confronto
+      return await tx.match.create({
+        data: {
+          matchDay: {
+            connect: { id: matchDay.id }
+          },
+          status: "scheduled",
+          teams: {
+            create: teams.map((team: any) => ({
+              name: team.name,
+              matchDay: {
+                connect: { id: matchDay.id }
+              },
+              players: {
+                connect: team.players.map((p: any) => ({ id: p.id }))
+              }
+            }))
+          }
+        },
+        include: {
+          teams: true // Retorna com os times para facilitar o uso no front
+        }
+      });
+    });
+  }
 
   /**
    * Busca um confronto específico para a tela de placar
@@ -124,27 +198,54 @@ export class MatchService {
   /**
    * REGRA: Remove um gol e decrementa o placar (Correção de erro)
    */
-  static async deleteLastGoal(matchId: string, goalId: string) {
-    const goal = await prisma.goal.findUnique({
-      where: { id: goalId },
-      include: {
-        match: { include: { teams: { include: { players: true } } } },
-      },
-    });
-    if (!goal) return;
-
-    const isTeamA = goal.match.teams[0].players.some(
-      (p) => p.id === goal.playerId,
-    );
-
+  static async deleteGoal(matchId: string, goalId: string) {
     return await prisma.$transaction(async (tx) => {
-      await tx.goal.delete({ where: { id: goalId } });
-      await tx.match.update({
-        where: { id: matchId },
-        data: {
-          [isTeamA ? "scoreA" : "scoreB"]: { decrement: 1 },
+      // 1. Busca o gol para identificar quem marcou e a qual time pertence
+      const goal = await tx.goal.findUnique({
+        where: { id: goalId },
+        include: {
+          player: {
+            include: {
+              team: {
+                where: { matchDay: { matches: { some: { id: matchId } } } },
+              },
+            },
+          },
         },
       });
+
+      if (!goal) throw new Error("Registro de gol não encontrado.");
+
+      // 2. Busca a partida para identificar a posição dos times (A ou B)
+      const match = await tx.match.findUnique({
+        where: { id: matchId },
+        include: { teams: true },
+      });
+
+      if (!match) throw new Error("Partida não encontrada.");
+
+      // 3. Determina qual lado do placar deve ser decrementado
+      // Comparamos o ID do time do jogador com o ID do primeiro time da partida
+      const isTeamA = match.teams[0].id === goal.player.team[0].id;
+      const teamSide = isTeamA ? "A" : "B";
+
+      // 4. Executa a deleção do gol e assistência
+      await tx.goal.delete({
+        where: { id: goalId },
+      });
+
+      // 5. Atualiza o placar da partida (decrementando 1)
+      const updatedMatch = await tx.match.update({
+        where: { id: matchId },
+        data: isTeamA
+          ? { scoreA: { decrement: 1 } }
+          : { scoreB: { decrement: 1 } },
+      });
+
+      return {
+        match: updatedMatch,
+        teamSide, // Retornamos o lado para atualizar a UI de forma otimista
+      };
     });
   }
 

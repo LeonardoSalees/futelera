@@ -27,14 +27,7 @@ const menuItems = [
     href: "/ranking", 
     color: "text-amber-500", 
     desc: "Artilharia e vitórias" 
-  },
-  { 
-    title: "Estatísticas", 
-    icon: BarChart3, 
-    href: "/ranking", 
-    color: "text-slate-400", 
-    desc: "Desempenho geral" 
-  },
+  },  
 ];
 
 export default function HomePage() {

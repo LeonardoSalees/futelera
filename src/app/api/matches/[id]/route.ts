@@ -20,3 +20,21 @@ export async function PATCH(
     return NextResponse.json({ error: "Erro ao atualizar partida" }, { status: 500 });
   }
 }
+
+export async function GET(
+  request: Request,
+  { params }: { params: { id: string } }
+) {
+  try {
+    const { id } = params;
+    const matchDay = await MatchService.getMatchById(id);
+
+    if (!matchDay) {
+      return NextResponse.json({ error: "Rodada não encontrada" }, { status: 404 });
+    }
+
+    return NextResponse.json(matchDay);
+  } catch (error) {
+    return NextResponse.json({ error: "Erro interno no servidor" }, { status: 500 });
+  }
+}

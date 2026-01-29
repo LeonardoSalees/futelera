@@ -36,42 +36,45 @@ export class MatchService {
 
   // Busca a Noite (Rodada) completa com contagem real de times
   static async getFullMatchDay(id: string) {
-    return await prisma.matchDay.findUnique({
-      where: { id },
-      include: {
-        _count: {
-          select: { teams: true } // Contagem real de times sorteados
-        },
-        teams: {
-          include: { players: true }
-        },
-        matches: {
-          orderBy: { createdAt: 'desc' },
-          include: { teams: true }
-        }
-      }
-    });
-  }
+  return await prisma.matchDay.findUnique({
+    where: { id },
+    include: {
+      teams: { include: { players: true } }, // Crucial para preencher o array teams
+      matches: {
+        orderBy: { createdAt: 'desc' },
+        include: { teams: true }
+      },
+      _count: { select: { teams: true } }
+    }
+  });
+}
 
   static async getCurrentMatchDay() {
-    return await prisma.matchDay.findFirst({
-      orderBy: { date: 'desc' },
-      include: {
-        matches: {
-          orderBy: { createdAt: 'desc' },
-          take: 1,
-          include: {
-            teams: true
-          }
-        },
-        _count:{
-          select:{
-            teams: true
-          }
+  return await prisma.matchDay.findFirst({
+    orderBy: { date: 'desc' },
+    include: {
+      // 1. ISSO AQUI TRAZ AS ESCALAÇÕES (O que estava faltando)
+      teams: {
+        include: {
+          players: true
+        }
+      },
+      // 2. Isso traz o placar do jogo atual
+      matches: {
+        orderBy: { createdAt: 'desc' },
+        include: {
+          teams: true
+        }
+      },
+      // 3. Isso traz o número para o Badge
+      _count: {
+        select: {
+          teams: true
         }
       }
-    });
-  }
+    }
+  });
+}
 
   static async confirmMatchDay(teams: any[]) {
     return await prisma.$transaction(async (tx) => {

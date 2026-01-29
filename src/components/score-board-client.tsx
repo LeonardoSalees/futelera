@@ -13,13 +13,33 @@ export function ScoreboardClient({ match, matchId, teamA, teamB, initialScore }:
   const [score, setScore] = useState(initialScore);
   const [seconds, setSeconds] = useState(0);
   const [isActive, setIsActive] = useState(false);
+  const [latestMatchday ,setLastestMatchDay] = useState<any>(null)
   const [goalsTimeline, setGoalsTimeline] = useState<any[]>(match.goals || []);
   const [goalProcess, setGoalProcess] = useState<{
     open: boolean; team: "A" | "B" | null; scorerId: string | null; step: "scorer" | "assistant";
   }>({ open: false, team: null, scorerId: null, step: "scorer" });
 
   const router = useRouter();
+  useEffect(() => {
+    const fetchData = async () => {
+  try {
+    // Executa os dois ao mesmo tempo
+    const resLatestMatchday = await fetch("/api/matches/matchday/latest")
+   
 
+    if (!resLatestMatchday.ok) throw new Error("Erro ao buscar dados");
+
+    const dataLatest = await resLatestMatchday.json();
+
+    // IMPORTANTE: Verifica se os gols existem antes de setar
+    setLastestMatchDay(dataLatest);
+    
+  } catch (e) {
+    console.error("Erro na carga de dados:", e);
+  } 
+};
+fetchData()
+  }, [])
   // --- CRONÔMETRO ---
   useEffect(() => {
     if (match.status === "playing" && match.startTime) {
@@ -182,7 +202,7 @@ export function ScoreboardClient({ match, matchId, teamA, teamB, initialScore }:
       </div>
 
       <div className="max-w-2xl mx-auto w-full mb-10">
-        <Button onClick={() => confirm("Encerrar partida?") && router.push("/")} className="w-full h-14 bg-white text-black hover:bg-slate-200 rounded-2xl font-black uppercase italic">
+        <Button onClick={() => confirm("Encerrar partida?") && router.push(`/partida/${latestMatchday.id}`)} className="w-full h-14 bg-white text-black hover:bg-slate-200 rounded-2xl font-black uppercase italic">
           Finalizar Partida
         </Button>
       </div>

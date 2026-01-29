@@ -14,7 +14,6 @@ export async function POST(request: Request) {
     // 1. Busca os jogadores
     const allPlayers = await PlayerService.getAllPlayers();
     const selectedPlayers = allPlayers.filter(p => playerIds.includes(p.id));
-    console.log(teamNames)
     // 2. Prepara as configurações (se teamNames não vier, usamos os padrões)
     const configs = (teamNames || ["Time A", "Time B", "Time C", "Time D"]).map((name: string) => ({ name }));
 

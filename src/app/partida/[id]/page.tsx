@@ -60,7 +60,7 @@ export default function PartidaPage({ params }: PageProps) {
     );
 
   // 2. Só dê notFound se o loading acabou E o match continua null
-  if (!match) return console.log('ok');
+  if (!match) return console.log('error');
 
   // 1. Pegamos todas as partidas do dia
   // 2. Usamos flatMap para "achatar" todos os times de todas as partidas em um único array

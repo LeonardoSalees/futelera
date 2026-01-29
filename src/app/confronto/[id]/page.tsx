@@ -12,7 +12,6 @@ export default async function ConfrontoPage({ params }: PageProps) {
   const match = await MatchService.getConfrontationById(id);
 
   if (!match) return notFound();
-    console.log(match)
 
   return (
     <main className="min-h-screen bg-slate-950 text-white p-4 flex flex-col items-center justify-center">

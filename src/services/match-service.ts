@@ -26,85 +26,115 @@ export class MatchService {
           },
         },
         teams: {
-          include:{
-            players: true
-          }
-        }
+          include: {
+            players: true,
+          },
+        },
       },
     });
   }
 
   // Busca a Noite (Rodada) completa com contagem real de times
   static async getFullMatchDay(id: string) {
-  return await prisma.matchDay.findUnique({
-    where: { id },
-    include: {
-      teams: { include: { players: true } }, // Crucial para preencher o array teams
-      matches: {
-        orderBy: { createdAt: 'desc' },
-        include: { teams: true }
+    return await prisma.matchDay.findUnique({
+      where: { id },
+      include: {
+        teams: { include: { players: true } }, // Crucial para preencher o array teams
+        matches: {
+          orderBy: { createdAt: "desc" },
+          include: { teams: true },
+        },
+        _count: { select: { teams: true } },
       },
-      _count: { select: { teams: true } }
+    });
+  }
+  static async latestMatchDay() {
+    try {
+      return await prisma.matchDay.findFirst({
+        orderBy: {
+          date: 'desc'
+        },
+        // Adicionamos os includes aqui para que os dados existam no refresh
+        include: {
+          matches: {
+            include: {
+              goals: {
+                include: {
+                  player: true,    // Autor do gol
+                  assistant: true  // Garçom
+                }
+              },
+              teams: {
+                include: {
+                  players: true
+                }
+              }
+            }
+          }
+        }
+      });
+    } catch (error) {
+      console.error("Erro ao buscar MatchDay no Service:", error);
+      throw error;
     }
-  });
-}
+  }
 
   static async getCurrentMatchDay() {
-  return await prisma.matchDay.findFirst({
-    orderBy: { date: 'desc' },
-    include: {
-      // 1. ISSO AQUI TRAZ AS ESCALAÇÕES (O que estava faltando)
-      teams: {
-        include: {
-          players: true
-        }
+    return await prisma.matchDay.findFirst({
+      orderBy: { date: "desc" },
+      include: {
+        // 1. ISSO AQUI TRAZ AS ESCALAÇÕES (O que estava faltando)
+        teams: {
+          include: {
+            players: true,
+          },
+        },
+        // 2. Isso traz o placar do jogo atual
+        matches: {
+          orderBy: { createdAt: "desc" },
+          include: {
+            teams: true,
+          },
+        },
+        // 3. Isso traz o número para o Badge
+        _count: {
+          select: {
+            teams: true,
+          },
+        },
       },
-      // 2. Isso traz o placar do jogo atual
-      matches: {
-        orderBy: { createdAt: 'desc' },
-        include: {
-          teams: true
-        }
-      },
-      // 3. Isso traz o número para o Badge
-      _count: {
-        select: {
-          teams: true
-        }
-      }
-    }
-  });
-}
+    });
+  }
 
   static async confirmMatchDay(teams: any[]) {
     return await prisma.$transaction(async (tx) => {
       // 1. Cria o MatchDay (A Noite)
       const matchDay = await tx.matchDay.create({
-        data: { date: new Date() }
+        data: { date: new Date() },
       });
 
       // 2. Cria os Times e o primeiro Confronto
       return await tx.match.create({
         data: {
           matchDay: {
-            connect: { id: matchDay.id }
+            connect: { id: matchDay.id },
           },
           status: "scheduled",
           teams: {
             create: teams.map((team: any) => ({
               name: team.name,
               matchDay: {
-                connect: { id: matchDay.id }
+                connect: { id: matchDay.id },
               },
               players: {
-                connect: team.players.map((p: any) => ({ id: p.id }))
-              }
-            }))
-          }
+                connect: team.players.map((p: any) => ({ id: p.id })),
+              },
+            })),
+          },
         },
         include: {
-          teams: true // Retorna com os times para facilitar o uso no front
-        }
+          teams: true, // Retorna com os times para facilitar o uso no front
+        },
       });
     });
   }

@@ -4,22 +4,40 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { ChevronRight, Zap, Trophy, Timer, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { MatchService } from "@/services/match-service";
+type MatchDataType = Awaited<ReturnType<typeof MatchService.latestMatchDay>>;
 
 export function ActiveMatchCard() {
   const [matchDay, setMatchDay] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [lastestMatchDay, setLastestMatchDay] = useState<MatchDataType>(null);
 
-  const fetchData = async () => {
-    try {
-      const res = await fetch("/api/matches/current");
-      const data = await res.json();
-      setMatchDay(data);
-    } catch (e) {
-      console.error(e);
-    } finally {
-      setLoading(false);
-    }
-  };
+
+ const fetchData = async () => {
+  try {
+    setLoading(true);
+    
+    // Executa os dois ao mesmo tempo
+    const [resMatch, resLatest] = await Promise.all([
+      fetch("/api/matches/current"),
+      fetch("/api/matches/matchday/latest")
+    ]);
+
+    if (!resMatch.ok || !resLatest.ok) throw new Error("Erro ao buscar dados");
+
+    const dataMatch = await resMatch.json();
+    const dataLatest = await resLatest.json();
+
+    // IMPORTANTE: Verifica se os gols existem antes de setar
+    setMatchDay(dataMatch);
+    setLastestMatchDay(dataLatest);
+    
+  } catch (e) {
+    console.error("Erro na carga de dados:", e);
+  } finally {
+    setLoading(false);
+  }
+};
 
   useEffect(() => {
     fetchData();
@@ -49,7 +67,7 @@ export function ActiveMatchCard() {
 
   // Se tem MatchDay mas não tem Match ainda, manda para sorteio
   const destinationHref = currentMatch 
-    ? `/partida/${currentMatch.id}` 
+    ? `/partida/${lastestMatchDay && lastestMatchDay.id}` 
     : "/sorteio";
 
   return (

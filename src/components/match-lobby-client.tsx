@@ -45,7 +45,6 @@ export function MatchLobbyClient({ matchDayId, teams }: MatchLobbyProps) {
     }
   };
 
-  console.log(teams)
   return (
     <Card className="border-2 border-blue-100 shadow-xl bg-slate-50">
       <CardHeader>

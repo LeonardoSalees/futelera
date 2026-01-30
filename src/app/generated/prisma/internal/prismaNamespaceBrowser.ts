@@ -89,7 +89,8 @@ export type PlayerScalarFieldEnum = (typeof PlayerScalarFieldEnum)[keyof typeof 
 
 export const MatchDayScalarFieldEnum = {
   id: 'id',
-  date: 'date'
+  date: 'date',
+  finished: 'finished'
 } as const
 
 export type MatchDayScalarFieldEnum = (typeof MatchDayScalarFieldEnum)[keyof typeof MatchDayScalarFieldEnum]

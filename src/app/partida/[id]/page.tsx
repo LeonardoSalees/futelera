@@ -14,6 +14,9 @@ import { MatchLobbyClient } from "@/components/match-lobby-client";
 import Link from "next/link";
 import { use, useEffect, useState } from "react";
 import type { MatchService } from "@/services/match-service";
+import { Router } from "next/router";
+import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
 // Extraímos a tipagem exata do retorno do seu método do Service
 type MatchDataType = Awaited<ReturnType<typeof MatchService.getFullMatchDay>>;
 
@@ -26,7 +29,7 @@ export default function PartidaPage({ params }: PageProps) {
   const id = resolvedParams.id;
   const [match, setMatch] = useState<MatchDataType>(null);
   const [loading, setLoading] = useState(true);
-
+  const router = useRouter();
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -48,7 +51,23 @@ export default function PartidaPage({ params }: PageProps) {
     const interval = setInterval(fetchData, 10000);
     return () => clearInterval(interval);
   }, [id]);
+  const handleFinishMatchDay = async () => {
+    if (!confirm("Tem certeza que deseja encerrar a rodada inteira?")) return;
 
+    try {
+      const res = await fetch(`/api/matches/matchday/${id}/finish`, {
+        method: "POST",
+      });
+
+      if (res.ok) {
+        alert("Rodada encerrada!");
+        router.push("/"); // Redireciona para a página inicial ou resumo
+        router.refresh();
+      }
+    } catch (e) {
+      console.error("Erro ao finalizar:", e);
+    }
+  };
   if (loading)
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh]">
@@ -60,7 +79,7 @@ export default function PartidaPage({ params }: PageProps) {
     );
 
   // 2. Só dê notFound se o loading acabou E o match continua null
-  if (!match) return console.log('error');
+  if (!match) return console.log("error");
 
   // 1. Pegamos todas as partidas do dia
   // 2. Usamos flatMap para "achatar" todos os times de todas as partidas em um único array
@@ -72,13 +91,9 @@ export default function PartidaPage({ params }: PageProps) {
     );
   // REGRAS DE NEGÓCIO NA UI:
   // 1. Verificamos se já existe alguma partida rolando (status: playing)
-  const activeMatch = match.matches.find(
-    (m) => m.status === "playing",
-  );
+  const activeMatch = match.matches.find((m) => m.status === "playing");
   // 2. Pegamos as partidas já encerradas para exibir o histórico
-  const finishedMatches = match.matches.filter(
-    (m) => m.status === "finished",
-  );
+  const finishedMatches = match.matches.filter((m) => m.status === "finished");
   return (
     <main className="max-w-2xl mx-auto p-4 space-y-8 pb-24">
       {/* Cabeçalho dinâmico baseado no estado da Pelada */}
@@ -248,6 +263,12 @@ export default function PartidaPage({ params }: PageProps) {
             </CardContent>
           </Card>
         ))}
+        <Button
+          onClick={handleFinishMatchDay}
+          className="cursor-pointer w-full h-14 bg-white text-black hover:bg-slate-200 rounded-2xl font-[1000] uppercase italic tracking-tighter transition-all active:scale-95 shadow-lg shadow-white/5"
+        >
+          Finalizar Rodada
+        </Button>
       </div>
     </main>
   );

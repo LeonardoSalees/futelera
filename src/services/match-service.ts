@@ -81,6 +81,9 @@ export class MatchService {
 
   static async getCurrentMatchDay() {
     return await prisma.matchDay.findFirst({
+      where: {
+      finished: { not: true } // 👈 Filtra para não mostrar o que já encerrou
+    },
       orderBy: { date: "desc" },
       include: {
         // 1. ISSO AQUI TRAZ AS ESCALAÇÕES (O que estava faltando)
@@ -290,6 +293,26 @@ export class MatchService {
       where: { id },
       data: { status: "finished" },
     });
+  }
+
+  static async finishMatchDay(id: string) {
+    try {
+      return await prisma.$transaction([
+        // 1. Finaliza todas as partidas desta rodada
+        prisma.match.updateMany({
+          where: { matchDayId: id },
+          data: { status: "finished" }
+        }),
+        // 2. Finaliza a rodada em si
+        prisma.matchDay.update({
+          where: { id },
+          data: { finished: true }
+        })
+      ]);
+    } catch (error) {
+      console.error("Erro ao finalizar MatchDay:", error);
+      throw error;
+    }
   }
 
   /**

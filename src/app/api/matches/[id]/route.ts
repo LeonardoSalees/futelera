@@ -1,16 +1,18 @@
 import { MatchService } from "@/services/match-service";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
+
+// 1. Defina um tipo comum para os parâmetros para evitar repetição
+type RouteParams = { params: Promise<{ id: string }> };
 
 export async function PATCH(
   request: Request,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: RouteParams
 ) {
   try {
-    const { id } = await params;
+    const { id } = await params; // Aguarda a Promise do ID
     const { action, team, value } = await request.json();
 
     if (action === "update_score") {
-      // O MatchService deve cuidar da lógica de incremento/decremento no Prisma
       const updatedMatch = await MatchService.registerGoal(id, team, value);
       return NextResponse.json(updatedMatch);
     }
@@ -23,10 +25,10 @@ export async function PATCH(
 
 export async function GET(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: RouteParams // 2. Corrigido de {params: {id: string}} para Promise
 ) {
   try {
-    const { id } = params;
+    const { id } = await params; // 3. Adicionado o await necessário
     const matchDay = await MatchService.getMatchById(id);
 
     if (!matchDay) {

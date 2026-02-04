@@ -3,6 +3,7 @@ import { Header } from "@/components/layout/header";
 import "./globals.css";
 import { Toaster } from "sonner";
 import { prisma } from "@/lib/prisma";
+import { MatchService } from "@/services/match-service";
 
 export default async function RootLayout({
   children,
@@ -14,6 +15,11 @@ export default async function RootLayout({
     orderBy: { date: 'desc' },
     select: { id: true }
   });
+
+  const activeMatchDay = await MatchService.getCurrentMatchDay();
+  
+  // Se existir e não estiver finalizada, passamos o ID, senão null
+  const matchDayId = activeMatchDay && !activeMatchDay.finished ? activeMatchDay.id : null;
   return (
     <html lang="pt-br" className="h-full">
       <body className="bg-[#020617] text-slate-200 antialiased selection:bg-blue-500/30 h-full flex flex-col">

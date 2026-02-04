@@ -187,6 +187,7 @@ export class MatchService {
     matchId: string,
     playerId: string,
     assistantId?: string,
+    minute?: number,
   ) {
     // 1. Busca a partida e verifica o status
     const match = await prisma.match.findUnique({
@@ -216,6 +217,7 @@ export class MatchService {
           matchId,
           playerId,
           assistantId: assistantId || null,
+          minute: minute || 0,
         },
       });
 

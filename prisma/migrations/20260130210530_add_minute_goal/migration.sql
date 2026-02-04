@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "Goal" ADD COLUMN     "minute" INTEGER NOT NULL DEFAULT 0;

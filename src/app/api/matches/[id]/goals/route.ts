@@ -7,7 +7,7 @@ export async function POST(
 ) {
   try {
     const { id } = await params;
-    const { playerId, assistantId } = await request.json();
+    const { playerId, assistantId, minute } = await request.json();
 
     // Usa a regra de negócio atômica que criamos
     const goal = await MatchService.registerGoal(id, playerId, assistantId);

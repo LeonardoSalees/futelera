@@ -74,6 +74,7 @@ model Goal {
   id      String @id @default(cuid())
   matchId String
   match   Match  @relation(fields: [matchId], references: [id])
+  minute      Int @default(0)
 
   playerId String
   player   Player @relation("PlayerGoals", fields: [playerId], references: [id])

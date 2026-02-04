@@ -20,13 +20,24 @@ export type GoalModel = runtime.Types.Result.DefaultSelection<Prisma.$GoalPayloa
 
 export type AggregateGoal = {
   _count: GoalCountAggregateOutputType | null
+  _avg: GoalAvgAggregateOutputType | null
+  _sum: GoalSumAggregateOutputType | null
   _min: GoalMinAggregateOutputType | null
   _max: GoalMaxAggregateOutputType | null
+}
+
+export type GoalAvgAggregateOutputType = {
+  minute: number | null
+}
+
+export type GoalSumAggregateOutputType = {
+  minute: number | null
 }
 
 export type GoalMinAggregateOutputType = {
   id: string | null
   matchId: string | null
+  minute: number | null
   playerId: string | null
   assistantId: string | null
   createdAt: Date | null
@@ -35,6 +46,7 @@ export type GoalMinAggregateOutputType = {
 export type GoalMaxAggregateOutputType = {
   id: string | null
   matchId: string | null
+  minute: number | null
   playerId: string | null
   assistantId: string | null
   createdAt: Date | null
@@ -43,6 +55,7 @@ export type GoalMaxAggregateOutputType = {
 export type GoalCountAggregateOutputType = {
   id: number
   matchId: number
+  minute: number
   playerId: number
   assistantId: number
   createdAt: number
@@ -50,9 +63,18 @@ export type GoalCountAggregateOutputType = {
 }
 
 
+export type GoalAvgAggregateInputType = {
+  minute?: true
+}
+
+export type GoalSumAggregateInputType = {
+  minute?: true
+}
+
 export type GoalMinAggregateInputType = {
   id?: true
   matchId?: true
+  minute?: true
   playerId?: true
   assistantId?: true
   createdAt?: true
@@ -61,6 +83,7 @@ export type GoalMinAggregateInputType = {
 export type GoalMaxAggregateInputType = {
   id?: true
   matchId?: true
+  minute?: true
   playerId?: true
   assistantId?: true
   createdAt?: true
@@ -69,6 +92,7 @@ export type GoalMaxAggregateInputType = {
 export type GoalCountAggregateInputType = {
   id?: true
   matchId?: true
+  minute?: true
   playerId?: true
   assistantId?: true
   createdAt?: true
@@ -113,6 +137,18 @@ export type GoalAggregateArgs<ExtArgs extends runtime.Types.Extensions.InternalA
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
    * 
+   * Select which fields to average
+  **/
+  _avg?: GoalAvgAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
+   * Select which fields to sum
+  **/
+  _sum?: GoalSumAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
    * Select which fields to find the minimum value
   **/
   _min?: GoalMinAggregateInputType
@@ -143,6 +179,8 @@ export type GoalGroupByArgs<ExtArgs extends runtime.Types.Extensions.InternalArg
   take?: number
   skip?: number
   _count?: GoalCountAggregateInputType | true
+  _avg?: GoalAvgAggregateInputType
+  _sum?: GoalSumAggregateInputType
   _min?: GoalMinAggregateInputType
   _max?: GoalMaxAggregateInputType
 }
@@ -150,10 +188,13 @@ export type GoalGroupByArgs<ExtArgs extends runtime.Types.Extensions.InternalArg
 export type GoalGroupByOutputType = {
   id: string
   matchId: string
+  minute: number
   playerId: string
   assistantId: string | null
   createdAt: Date
   _count: GoalCountAggregateOutputType | null
+  _avg: GoalAvgAggregateOutputType | null
+  _sum: GoalSumAggregateOutputType | null
   _min: GoalMinAggregateOutputType | null
   _max: GoalMaxAggregateOutputType | null
 }
@@ -179,6 +220,7 @@ export type GoalWhereInput = {
   NOT?: Prisma.GoalWhereInput | Prisma.GoalWhereInput[]
   id?: Prisma.StringFilter<"Goal"> | string
   matchId?: Prisma.StringFilter<"Goal"> | string
+  minute?: Prisma.IntFilter<"Goal"> | number
   playerId?: Prisma.StringFilter<"Goal"> | string
   assistantId?: Prisma.StringNullableFilter<"Goal"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Goal"> | Date | string
@@ -190,6 +232,7 @@ export type GoalWhereInput = {
 export type GoalOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   matchId?: Prisma.SortOrder
+  minute?: Prisma.SortOrder
   playerId?: Prisma.SortOrder
   assistantId?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -204,6 +247,7 @@ export type GoalWhereUniqueInput = Prisma.AtLeast<{
   OR?: Prisma.GoalWhereInput[]
   NOT?: Prisma.GoalWhereInput | Prisma.GoalWhereInput[]
   matchId?: Prisma.StringFilter<"Goal"> | string
+  minute?: Prisma.IntFilter<"Goal"> | number
   playerId?: Prisma.StringFilter<"Goal"> | string
   assistantId?: Prisma.StringNullableFilter<"Goal"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Goal"> | Date | string
@@ -215,12 +259,15 @@ export type GoalWhereUniqueInput = Prisma.AtLeast<{
 export type GoalOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   matchId?: Prisma.SortOrder
+  minute?: Prisma.SortOrder
   playerId?: Prisma.SortOrder
   assistantId?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   _count?: Prisma.GoalCountOrderByAggregateInput
+  _avg?: Prisma.GoalAvgOrderByAggregateInput
   _max?: Prisma.GoalMaxOrderByAggregateInput
   _min?: Prisma.GoalMinOrderByAggregateInput
+  _sum?: Prisma.GoalSumOrderByAggregateInput
 }
 
 export type GoalScalarWhereWithAggregatesInput = {
@@ -229,6 +276,7 @@ export type GoalScalarWhereWithAggregatesInput = {
   NOT?: Prisma.GoalScalarWhereWithAggregatesInput | Prisma.GoalScalarWhereWithAggregatesInput[]
   id?: Prisma.StringWithAggregatesFilter<"Goal"> | string
   matchId?: Prisma.StringWithAggregatesFilter<"Goal"> | string
+  minute?: Prisma.IntWithAggregatesFilter<"Goal"> | number
   playerId?: Prisma.StringWithAggregatesFilter<"Goal"> | string
   assistantId?: Prisma.StringNullableWithAggregatesFilter<"Goal"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Goal"> | Date | string
@@ -236,6 +284,7 @@ export type GoalScalarWhereWithAggregatesInput = {
 
 export type GoalCreateInput = {
   id?: string
+  minute?: number
   createdAt?: Date | string
   match: Prisma.MatchCreateNestedOneWithoutGoalsInput
   player: Prisma.PlayerCreateNestedOneWithoutGoalsInput
@@ -245,6 +294,7 @@ export type GoalCreateInput = {
 export type GoalUncheckedCreateInput = {
   id?: string
   matchId: string
+  minute?: number
   playerId: string
   assistantId?: string | null
   createdAt?: Date | string
@@ -252,6 +302,7 @@ export type GoalUncheckedCreateInput = {
 
 export type GoalUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  minute?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   match?: Prisma.MatchUpdateOneRequiredWithoutGoalsNestedInput
   player?: Prisma.PlayerUpdateOneRequiredWithoutGoalsNestedInput
@@ -261,6 +312,7 @@ export type GoalUpdateInput = {
 export type GoalUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   matchId?: Prisma.StringFieldUpdateOperationsInput | string
+  minute?: Prisma.IntFieldUpdateOperationsInput | number
   playerId?: Prisma.StringFieldUpdateOperationsInput | string
   assistantId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -269,6 +321,7 @@ export type GoalUncheckedUpdateInput = {
 export type GoalCreateManyInput = {
   id?: string
   matchId: string
+  minute?: number
   playerId: string
   assistantId?: string | null
   createdAt?: Date | string
@@ -276,12 +329,14 @@ export type GoalCreateManyInput = {
 
 export type GoalUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  minute?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type GoalUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   matchId?: Prisma.StringFieldUpdateOperationsInput | string
+  minute?: Prisma.IntFieldUpdateOperationsInput | number
   playerId?: Prisma.StringFieldUpdateOperationsInput | string
   assistantId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -300,14 +355,20 @@ export type GoalOrderByRelationAggregateInput = {
 export type GoalCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   matchId?: Prisma.SortOrder
+  minute?: Prisma.SortOrder
   playerId?: Prisma.SortOrder
   assistantId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
+export type GoalAvgOrderByAggregateInput = {
+  minute?: Prisma.SortOrder
+}
+
 export type GoalMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   matchId?: Prisma.SortOrder
+  minute?: Prisma.SortOrder
   playerId?: Prisma.SortOrder
   assistantId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -316,9 +377,14 @@ export type GoalMaxOrderByAggregateInput = {
 export type GoalMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   matchId?: Prisma.SortOrder
+  minute?: Prisma.SortOrder
   playerId?: Prisma.SortOrder
   assistantId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+}
+
+export type GoalSumOrderByAggregateInput = {
+  minute?: Prisma.SortOrder
 }
 
 export type GoalCreateNestedManyWithoutPlayerInput = {
@@ -449,6 +515,7 @@ export type GoalUncheckedUpdateManyWithoutMatchNestedInput = {
 
 export type GoalCreateWithoutPlayerInput = {
   id?: string
+  minute?: number
   createdAt?: Date | string
   match: Prisma.MatchCreateNestedOneWithoutGoalsInput
   assistant?: Prisma.PlayerCreateNestedOneWithoutAssistsInput
@@ -457,6 +524,7 @@ export type GoalCreateWithoutPlayerInput = {
 export type GoalUncheckedCreateWithoutPlayerInput = {
   id?: string
   matchId: string
+  minute?: number
   assistantId?: string | null
   createdAt?: Date | string
 }
@@ -473,6 +541,7 @@ export type GoalCreateManyPlayerInputEnvelope = {
 
 export type GoalCreateWithoutAssistantInput = {
   id?: string
+  minute?: number
   createdAt?: Date | string
   match: Prisma.MatchCreateNestedOneWithoutGoalsInput
   player: Prisma.PlayerCreateNestedOneWithoutGoalsInput
@@ -481,6 +550,7 @@ export type GoalCreateWithoutAssistantInput = {
 export type GoalUncheckedCreateWithoutAssistantInput = {
   id?: string
   matchId: string
+  minute?: number
   playerId: string
   createdAt?: Date | string
 }
@@ -517,6 +587,7 @@ export type GoalScalarWhereInput = {
   NOT?: Prisma.GoalScalarWhereInput | Prisma.GoalScalarWhereInput[]
   id?: Prisma.StringFilter<"Goal"> | string
   matchId?: Prisma.StringFilter<"Goal"> | string
+  minute?: Prisma.IntFilter<"Goal"> | number
   playerId?: Prisma.StringFilter<"Goal"> | string
   assistantId?: Prisma.StringNullableFilter<"Goal"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Goal"> | Date | string
@@ -540,6 +611,7 @@ export type GoalUpdateManyWithWhereWithoutAssistantInput = {
 
 export type GoalCreateWithoutMatchInput = {
   id?: string
+  minute?: number
   createdAt?: Date | string
   player: Prisma.PlayerCreateNestedOneWithoutGoalsInput
   assistant?: Prisma.PlayerCreateNestedOneWithoutAssistsInput
@@ -547,6 +619,7 @@ export type GoalCreateWithoutMatchInput = {
 
 export type GoalUncheckedCreateWithoutMatchInput = {
   id?: string
+  minute?: number
   playerId: string
   assistantId?: string | null
   createdAt?: Date | string
@@ -581,6 +654,7 @@ export type GoalUpdateManyWithWhereWithoutMatchInput = {
 export type GoalCreateManyPlayerInput = {
   id?: string
   matchId: string
+  minute?: number
   assistantId?: string | null
   createdAt?: Date | string
 }
@@ -588,12 +662,14 @@ export type GoalCreateManyPlayerInput = {
 export type GoalCreateManyAssistantInput = {
   id?: string
   matchId: string
+  minute?: number
   playerId: string
   createdAt?: Date | string
 }
 
 export type GoalUpdateWithoutPlayerInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  minute?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   match?: Prisma.MatchUpdateOneRequiredWithoutGoalsNestedInput
   assistant?: Prisma.PlayerUpdateOneWithoutAssistsNestedInput
@@ -602,6 +678,7 @@ export type GoalUpdateWithoutPlayerInput = {
 export type GoalUncheckedUpdateWithoutPlayerInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   matchId?: Prisma.StringFieldUpdateOperationsInput | string
+  minute?: Prisma.IntFieldUpdateOperationsInput | number
   assistantId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -609,12 +686,14 @@ export type GoalUncheckedUpdateWithoutPlayerInput = {
 export type GoalUncheckedUpdateManyWithoutPlayerInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   matchId?: Prisma.StringFieldUpdateOperationsInput | string
+  minute?: Prisma.IntFieldUpdateOperationsInput | number
   assistantId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type GoalUpdateWithoutAssistantInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  minute?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   match?: Prisma.MatchUpdateOneRequiredWithoutGoalsNestedInput
   player?: Prisma.PlayerUpdateOneRequiredWithoutGoalsNestedInput
@@ -623,6 +702,7 @@ export type GoalUpdateWithoutAssistantInput = {
 export type GoalUncheckedUpdateWithoutAssistantInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   matchId?: Prisma.StringFieldUpdateOperationsInput | string
+  minute?: Prisma.IntFieldUpdateOperationsInput | number
   playerId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -630,12 +710,14 @@ export type GoalUncheckedUpdateWithoutAssistantInput = {
 export type GoalUncheckedUpdateManyWithoutAssistantInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   matchId?: Prisma.StringFieldUpdateOperationsInput | string
+  minute?: Prisma.IntFieldUpdateOperationsInput | number
   playerId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type GoalCreateManyMatchInput = {
   id?: string
+  minute?: number
   playerId: string
   assistantId?: string | null
   createdAt?: Date | string
@@ -643,6 +725,7 @@ export type GoalCreateManyMatchInput = {
 
 export type GoalUpdateWithoutMatchInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  minute?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   player?: Prisma.PlayerUpdateOneRequiredWithoutGoalsNestedInput
   assistant?: Prisma.PlayerUpdateOneWithoutAssistsNestedInput
@@ -650,6 +733,7 @@ export type GoalUpdateWithoutMatchInput = {
 
 export type GoalUncheckedUpdateWithoutMatchInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  minute?: Prisma.IntFieldUpdateOperationsInput | number
   playerId?: Prisma.StringFieldUpdateOperationsInput | string
   assistantId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -657,6 +741,7 @@ export type GoalUncheckedUpdateWithoutMatchInput = {
 
 export type GoalUncheckedUpdateManyWithoutMatchInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  minute?: Prisma.IntFieldUpdateOperationsInput | number
   playerId?: Prisma.StringFieldUpdateOperationsInput | string
   assistantId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -667,6 +752,7 @@ export type GoalUncheckedUpdateManyWithoutMatchInput = {
 export type GoalSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   matchId?: boolean
+  minute?: boolean
   playerId?: boolean
   assistantId?: boolean
   createdAt?: boolean
@@ -678,6 +764,7 @@ export type GoalSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
 export type GoalSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   matchId?: boolean
+  minute?: boolean
   playerId?: boolean
   assistantId?: boolean
   createdAt?: boolean
@@ -689,6 +776,7 @@ export type GoalSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
 export type GoalSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   matchId?: boolean
+  minute?: boolean
   playerId?: boolean
   assistantId?: boolean
   createdAt?: boolean
@@ -700,12 +788,13 @@ export type GoalSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
 export type GoalSelectScalar = {
   id?: boolean
   matchId?: boolean
+  minute?: boolean
   playerId?: boolean
   assistantId?: boolean
   createdAt?: boolean
 }
 
-export type GoalOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "matchId" | "playerId" | "assistantId" | "createdAt", ExtArgs["result"]["goal"]>
+export type GoalOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "matchId" | "minute" | "playerId" | "assistantId" | "createdAt", ExtArgs["result"]["goal"]>
 export type GoalInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   match?: boolean | Prisma.MatchDefaultArgs<ExtArgs>
   player?: boolean | Prisma.PlayerDefaultArgs<ExtArgs>
@@ -732,6 +821,7 @@ export type $GoalPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     matchId: string
+    minute: number
     playerId: string
     assistantId: string | null
     createdAt: Date
@@ -1163,6 +1253,7 @@ export interface Prisma__GoalClient<T, Null = never, ExtArgs extends runtime.Typ
 export interface GoalFieldRefs {
   readonly id: Prisma.FieldRef<"Goal", 'String'>
   readonly matchId: Prisma.FieldRef<"Goal", 'String'>
+  readonly minute: Prisma.FieldRef<"Goal", 'Int'>
   readonly playerId: Prisma.FieldRef<"Goal", 'String'>
   readonly assistantId: Prisma.FieldRef<"Goal", 'String'>
   readonly createdAt: Prisma.FieldRef<"Goal", 'DateTime'>

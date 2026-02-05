@@ -1,4 +1,5 @@
 import { MatchService } from "@/services/match-service";
+import { revalidatePath } from "next/cache";
 import { NextResponse } from "next/server";
 
 export async function POST(
@@ -7,5 +8,7 @@ export async function POST(
 ) {
   const { id } = await params;
   await MatchService.finishMatch(id);
+       revalidatePath("/ranking");
+  
   return NextResponse.json({ success: true });
 }

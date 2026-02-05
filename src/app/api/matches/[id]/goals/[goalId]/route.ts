@@ -1,4 +1,5 @@
 import { MatchService } from "@/services/match-service";
+import { revalidatePath } from "next/cache";
 import { NextResponse } from "next/server";
 
 export async function DELETE(
@@ -9,6 +10,7 @@ export async function DELETE(
     const { id, goalId } = await params;
 
     const result = await MatchService.deleteGoal(id, goalId);
+     revalidatePath("/ranking");
 
     return NextResponse.json(result, { status: 200 });
   } catch (error: any) {

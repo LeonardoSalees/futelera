@@ -1,30 +1,36 @@
-import { PlayerService } from "@/services/player-service";
+// app/jogadores/page.tsx
 import { PlayerListClient } from "./player-list-client";
-import { AddPlayerForm } from "@/components/add-player-form"; // Criaremos este abaixo
+import { AddPlayerForm } from "@/components/add-player-form";
 
-export const dynamic = 'force-dynamic';
+async function getPlayers() {
+ 
+  
+  const response = await fetch(`api/players`, {
+    cache: 'no-store', // Garante que o servidor busque dados frescos toda vez
+  });
+
+  if (!response.ok) {
+    console.error("Erro ao buscar jogadores");
+    return [];
+  }
+
+  return response.json();
+}
 
 export default async function JogadoresPage() {
-  // O servidor busca os dados na nuvem antes de entregar a página
-  const players = await PlayerService.getAllPlayers();
+  const players = await getPlayers();
 
   return (
     <div className="max-w-md mx-auto space-y-6 pb-20">
       <div className="flex flex-col gap-2">
-        <h1 className="text-2xl font-bold tracking-tight">
-          Atletas
-        </h1>
+        <h1 className="text-2xl font-bold tracking-tight">Atletas</h1>
         <p className="text-sm text-muted-foreground">
           Adicione novos mestres ou selecione quem vai pro jogo.
         </p>
       </div>
 
-      {/* Formulário para adicionar novos jogadores via API */}
-      <AddPlayerForm/>
-
+      <AddPlayerForm />
       <hr className="border-slate-200" />
-
-      {/* Lista interativa que gerencia o sorteio */}
       <PlayerListClient initialPlayers={players} />
     </div>
   );

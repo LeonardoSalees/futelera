@@ -3,8 +3,6 @@ import { RankingAgressivo } from "@/components/ranking/detailed-ranking";
 import { PlayerService } from "@/services/player-service";
 import { Trophy, Flame, Target, Crown, TrendingUp } from "lucide-react";
 
-export const dynamic = 'force-dynamic';
-
 export default async function RankingPage() {
   const players = await PlayerService.getRanking();
 

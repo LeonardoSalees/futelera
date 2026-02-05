@@ -1,8 +1,6 @@
 import { prisma } from "@/lib/prisma";
+import { revalidatePath } from "next/cache";
 import { NextResponse } from "next/server";
-
-// ESTA LINHA É A CHAVE:
-export const dynamic = 'force-dynamic'; 
 
 export async function GET() {
   const players = await prisma.player.findMany({
@@ -17,6 +15,10 @@ export async function POST(request: Request) {
     const player = await prisma.player.create({
       data: { name, rating: Number(rating) }
     });
+         revalidatePath("/ranking");
+     revalidatePath("/jogadores");
+
+    
     return NextResponse.json(player);
   } catch (error) {
     return NextResponse.json({ error: "Erro ao criar player" }, { status: 500 });

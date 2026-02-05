@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { PlayerService } from "@/services/player-service";
 import { MatchService } from "@/services/match-service";
+import { revalidatePath } from "next/cache";
 
 export async function POST(request: Request) {
   try {
@@ -19,6 +20,8 @@ export async function POST(request: Request) {
 
     // 3. Aplica a lógica de sorteio do seu Service
     const teams = MatchService.balanceTeams(selectedPlayers, configs);
+     revalidatePath("/ranking");
+     revalidatePath("/jogadores");
 
     // Retornamos os times sorteados para o cliente decidir o que fazer
     return NextResponse.json(teams);

@@ -1,6 +1,9 @@
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 
+// ESTA LINHA É A CHAVE:
+export const dynamic = 'force-dynamic'; 
+
 export async function GET() {
   const players = await prisma.player.findMany({
     orderBy: { name: 'asc' }
@@ -9,9 +12,13 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
-  const { name, rating } = await request.json();
-  const player = await prisma.player.create({
-    data: { name, rating: Number(rating) }
-  });
-  return NextResponse.json(player);
+  try {
+    const { name, rating } = await request.json();
+    const player = await prisma.player.create({
+      data: { name, rating: Number(rating) }
+    });
+    return NextResponse.json(player);
+  } catch (error) {
+    return NextResponse.json({ error: "Erro ao criar player" }, { status: 500 });
+  }
 }

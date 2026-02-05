@@ -2,6 +2,8 @@ import { PlayerService } from "@/services/player-service";
 import { PlayerListClient } from "./player-list-client";
 import { AddPlayerForm } from "@/components/add-player-form"; // Criaremos este abaixo
 
+export const dynamic = 'force-dynamic';
+
 export default async function JogadoresPage() {
   // O servidor busca os dados na nuvem antes de entregar a página
   const players = await PlayerService.getAllPlayers();

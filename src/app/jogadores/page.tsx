@@ -1,24 +1,32 @@
-// app/jogadores/page.tsx
+"use client"; // 👈 Essencial para hooks como useState e useEffect
+
+import { useEffect, useState } from "react";
 import { PlayerListClient } from "./player-list-client";
 import { AddPlayerForm } from "@/components/add-player-form";
+import { Loader2 } from "lucide-react"; // Opcional: para um feedback visual
 
-async function getPlayers() {
- 
-  
-  const response = await fetch(`api/players`, {
-    cache: 'no-store', // Garante que o servidor busque dados frescos toda vez
-  });
+export default function JogadoresPage() {
+  const [players, setPlayers] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  if (!response.ok) {
-    console.error("Erro ao buscar jogadores");
-    return [];
-  }
+  // Busca os jogadores ao montar o componente
+  useEffect(() => {
+    async function fetchPlayers() {
+      try {
+        const response = await fetch("/api/players"); // Adicionado "/" para caminho absoluto
+        if (response.ok) {
+          const data = await response.json();
+          setPlayers(data);
+        }
+      } catch (error) {
+        console.error("Erro ao buscar jogadores:", error);
+      } finally {
+        setLoading(false);
+      }
+    }
 
-  return response.json();
-}
-
-export default async function JogadoresPage() {
-  const players = await getPlayers();
+    fetchPlayers();
+  }, []);
 
   return (
     <div className="max-w-md mx-auto space-y-6 pb-20">
@@ -30,8 +38,16 @@ export default async function JogadoresPage() {
       </div>
 
       <AddPlayerForm />
-      <hr className="border-slate-200" />
-      <PlayerListClient initialPlayers={players} />
+      
+      <hr className="border-slate-800/50" />
+
+      {loading ? (
+        <div className="flex justify-center py-10">
+          <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
+        </div>
+      ) : (
+        <PlayerListClient initialPlayers={players} />
+      )}
     </div>
   );
 }

@@ -1,32 +1,32 @@
-"use client"; // 👈 Essencial para hooks como useState e useEffect
+"use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react"; // Adicionado useCallback
 import { PlayerListClient } from "./player-list-client";
 import { AddPlayerForm } from "@/components/add-player-form";
-import { Loader2 } from "lucide-react"; // Opcional: para um feedback visual
+import { Loader2 } from "lucide-react";
 
 export default function JogadoresPage() {
   const [players, setPlayers] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // Busca os jogadores ao montar o componente
-  useEffect(() => {
-    async function fetchPlayers() {
-      try {
-        const response = await fetch("/api/players"); // Adicionado "/" para caminho absoluto
-        if (response.ok) {
-          const data = await response.json();
-          setPlayers(data);
-        }
-      } catch (error) {
-        console.error("Erro ao buscar jogadores:", error);
-      } finally {
-        setLoading(false);
+  // Criamos uma função reutilizável para buscar os dados
+  const fetchPlayers = useCallback(async () => {
+    try {
+      const response = await fetch("/api/players");
+      if (response.ok) {
+        const data = await response.json();
+        setPlayers(data);
       }
+    } catch (error) {
+      console.error("Erro ao buscar jogadores:", error);
+    } finally {
+      setLoading(false);
     }
-
-    fetchPlayers();
   }, []);
+
+  useEffect(() => {
+    fetchPlayers();
+  }, [fetchPlayers]);
 
   return (
     <div className="max-w-md mx-auto space-y-6 pb-20">
@@ -37,7 +37,8 @@ export default function JogadoresPage() {
         </p>
       </div>
 
-      <AddPlayerForm />
+      {/* Passamos a função de buscar dados para o formulário */}
+      <AddPlayerForm onSuccess={fetchPlayers} />
       
       <hr className="border-slate-800/50" />
 

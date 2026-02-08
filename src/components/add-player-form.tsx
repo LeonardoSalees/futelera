@@ -1,18 +1,22 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+// Removido o useRouter para essa lógica específica de Client Side
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Plus, Loader2, Star, UserPlus } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
 import { cn } from "@/lib/utils";
 
-export function AddPlayerForm() {
+// Adicionamos a tipagem para a prop onSuccess
+interface AddPlayerFormProps {
+  onSuccess?: () => void;
+}
+
+export function AddPlayerForm({ onSuccess }: AddPlayerFormProps) {
   const [name, setName] = useState("");
   const [rating, setRating] = useState("3");
   const [isPending, setIsPending] = useState(false);
-  const router = useRouter();
 
   const handleAdd = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -29,7 +33,11 @@ export function AddPlayerForm() {
       if (response.ok) {
         setName("");
         setRating("3");
-        router.refresh(); // Atualiza a lista de jogadores automaticamente
+        
+        // Chamar a função de atualização que vem do pai
+        if (onSuccess) {
+          onSuccess();
+        }
       }
     } catch (error) {
         console.error("Erro ao adicionar:", error);
